@@ -1,0 +1,78 @@
+{
+  "expenses": [
+    {
+      "id": 1,
+      "amount": 50000,
+      "type": "INCOME",
+      "category": "Salary",
+      "description": "Monthly salary",
+      "date": "2026-04-01"
+    },
+    {
+      "id": 2,
+      "amount": 5000,
+      "type": "EXPENSE",
+      "category": "Rent",
+      "description": "Monthly rent",
+      "date": "2026-04-05"
+    },
+    {
+      "id": 3,
+      "amount": 1200,
+      "type": "EXPENSE",
+      "category": "Food",
+      "description": "Groceries",
+      "date": "2026-04-10"
+    },
+    {
+      "id": 4,
+      "amount": 800,
+      "type": "EXPENSE",
+      "category": "Travel",
+      "description": "Bus pass",
+      "date": "2026-04-12"
+    },
+    {
+      "id": 5,
+      "amount": 2000,
+      "type": "INCOME",
+      "category": "Freelance",
+      "description": "Web design project",
+      "date": "2026-04-15"
+    },
+    {
+      "id": 6,
+      "amount": 500,
+      "type": "EXPENSE",
+      "category": "Food",
+      "description": "Restaurant",
+      "date": "2026-04-18"
+    }
+  ],
+  "budgets": [
+    {
+      "id": 1,
+      "category": "Food",
+      "amount": 5000,
+      "month": 4,
+      "year": 2026,
+      "description": "Monthly food budget"
+    },
+    {
+      "id": 2,
+      "category": "Travel",
+      "amount": 2000,
+      "month": 4,
+      "year": 2026,
+      "description": "Travel budget"
+    },
+    {
+      "id": 3,
+      "category": "Shopping",
+      "amount": 3000,
+      "month": 4,
+      "year": 2026,
+      "description": "Shopping budget"
+    }
+  ]
+}
