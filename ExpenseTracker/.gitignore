@@ -1,0 +1,21 @@
+# Maven
+target/
+.mvn/
+*.jar
+*.war
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build
+*.class
+*.log
+
+# Environment
+.env
+.env.local

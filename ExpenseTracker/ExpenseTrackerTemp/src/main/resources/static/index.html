@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ExpenseIQ – Personal Finance Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #161920;
+      --card:     #1c2029;
+      --border:   #2a2f3d;
+      --accent:   #6ee7b7;
+      --danger:   #f87171;
+      --income:   #6ee7b7;
+      --expense:  #f87171;
+      --text:     #e8eaf0;
+      --muted:    #6b7280;
+      --radius:   14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    .nav-tab {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      font-weight: 500;
+      padding: .5rem 1.1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .nav-tab:hover { color: var(--text); background: var(--border); }
+    .nav-tab.active { color: var(--bg); background: var(--accent); }
+
+    /* ── MAIN ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* ── VIEWS ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .summary-card.income::before  { background: var(--income); }
+    .summary-card.expense::before { background: var(--expense); }
+    .summary-card.balance::before { background: #818cf8; }
+    .card-label {
+      font-size: .75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+    .card-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+    .income  .card-value { color: var(--income); }
+    .expense .card-value { color: var(--expense); }
+    .balance .card-value { color: #818cf8; }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    /* ── ADD FORM ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: .8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+    }
+    input, select, textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      padding: .65rem .9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+    select option { background: var(--card); }
+
+    /* ── TOGGLE INCOME / EXPENSE ── */
+    .type-toggle {
+      display: flex;
+      gap: 8px;
+    }
+    .type-btn {
+      flex: 1;
+      padding: .65rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .type-btn.income.active  { background: rgba(110,231,183,.12); border-color: var(--income);  color: var(--income); }
+    .type-btn.expense.active { background: rgba(248,113,113,.12); border-color: var(--expense); color: var(--expense); }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-submit {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      padding: .75rem 2rem;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      margin-top: .5rem;
+    }
+    .btn-submit:hover { opacity: .85; }
+    .btn-submit:active { transform: scale(.98); }
+
+    /* ── TRANSACTIONS TABLE ── */
+    .table-wrapper {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--surface);
+      padding: .75rem 1.2rem;
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      text-align: left;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface); }
+    tbody td { padding: .85rem 1.2rem; font-size: .9rem; }
+    .badge {
+      display: inline-block;
+      padding: .2rem .65rem;
+      border-radius: 99px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .badge.income  { background: rgba(110,231,183,.15); color: var(--income); }
+    .badge.expense { background: rgba(248,113,113,.15); color: var(--expense); }
+    .amount-income  { color: var(--income);  font-weight: 600; }
+    .amount-expense { color: var(--expense); font-weight: 600; }
+    .btn-delete {
+      background: none;
+      border: 1px solid rgba(248,113,113,.3);
+      border-radius: 6px;
+      color: var(--expense);
+      font-size: .8rem;
+      padding: .25rem .6rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-delete:hover { background: rgba(248,113,113,.1); }
+
+    /* ── MONTHLY REPORT VIEW ── */
+    .month-filter {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .month-filter select, .month-filter input {
+      width: auto;
+      min-width: 140px;
+    }
+    .btn-filter {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .875rem;
+      padding: .65rem 1.4rem;
+      cursor: pointer;
+    }
+    .monthly-summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── CHART VIEW ── */
+    .chart-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+    canvas { max-height: 320px; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+      font-size: .9rem;
+      padding: .85rem 1.4rem;
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: var(--danger); color: #fff; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
+
+    @media (max-width: 700px) {
+      .summary-grid, .monthly-summary-cards { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .nav-tab span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Expense<span>IQ</span></div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('dashboard')">📊 <span>Dashboard</span></button>
+    <button class="nav-tab" onclick="showView('add')">➕ <span>Add Entry</span></button>
+    <button class="nav-tab" onclick="showView('budget')">💰 <span>Budget</span></button>
+    <button class="nav-tab" onclick="showView('monthly')">📅 <span>Monthly</span></button>
+    <button class="nav-tab" onclick="showView('charts')">📈 <span>Charts</span></button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ═══════════ DASHBOARD ═══════════ -->
+  <div id="view-dashboard" class="view active">
+    <div class="summary-grid">
+      <div class="summary-card income">
+        <div class="card-label">Total Income</div>
+        <div class="card-value" id="total-income">₹0</div>
+      </div>
+      <div class="summary-card expense">
+        <div class="card-label">Total Expense</div>
+        <div class="card-value" id="total-expense">₹0</div>
+      </div>
+      <div class="summary-card balance">
+        <div class="card-label">Net Balance</div>
+        <div class="card-value" id="balance">₹0</div>
+      </div>
+    </div>
+
+    <div class="section-title">Recent Transactions</div>
+    <div class="table-wrapper">
+      <div class="table-header">
+        <span style="font-weight:600;">All Records</span>
+        <span id="record-count" style="font-size:.85rem;color:var(--muted);">Loading...</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expense-tbody">
+          <tr><td colspan="7"><div class="empty-state"><div class="icon">⏳</div>Loading...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════ ADD ENTRY ═══════════ -->
+  <div id="view-add" class="view">
+    <div class="section-title">Add Income / Expense</div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Type</label>
+          <div class="type-toggle">
+            <button class="type-btn income active" id="btn-income" onclick="setType('INCOME')">💚 Income</button>
+            <button class="type-btn expense" id="btn-expense" onclick="setType('EXPENSE')">❤️ Expense</button>
+          </div>
+          <input type="hidden" id="entry-type" value="INCOME"/>
+        </div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" id="entry-amount" placeholder="e.g. 5000" min="1"/>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="entry-date"/>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="entry-category">
+            <option value="">-- Select --</option>
+            <optgroup label="Income">
+              <option>Salary</option>
+              <option>Freelance</option>
+              <option>Investment</option>
+              <option>Other Income</option>
+            </optgroup>
+            <optgroup label="Expense">
+              <option>Food</option>
+              <option>Travel</option>
+              <option>Rent</option>
+              <option>Utilities</option>
+              <option>Healthcare</option>
+              <option>Shopping</option>
+              <option>Education</option>
+              <option>Entertainment</option>
+              <option>Other Expense</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="entry-description" placeholder="Optional note..."/>
+        </div>
+        <div class="form-group full">
+          <button class="btn-submit" onclick="submitEntry()">Add Entry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ BUDGET ═══════════ -->
+  <div id="view-budget" class="view">
+    <div class="section-title">Set Monthly Budget</div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="budget-category">
+            <option value="Food">🍔 Food</option>
+            <option value="Travel">🚗 Travel</option>
+            <option value="Rent">🏠 Rent</option>
+            <option value="Utilities">💡 Utilities</option>
+            <option value="Healthcare">🏥 Healthcare</option>
+            <option value="Shopping">🛍️ Shopping</option>
+            <option value="Education">📚 Education</option>
+            <option value="Entertainment">🎬 Entertainment</option>
+            <option value="Other Expense">📦 Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Budget Amount (₹)</label>
+          <input type="number" id="budget-amount" placeholder="e.g. 5000" min="1"/>
+        </div>
+        <div class="form-group">
+          <label>Month</label>
+          <select id="budget-month">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Year</label>
+          <input type="number" id="budget-year" value="2026" min="2000" max="2099" style="width:100%;"/>
+        </div>
+        <div class="form-group full">
+          <label>Description (Optional)</label>
+          <input type="text" id="budget-description" placeholder="e.g. Monthly food budget"/>
+        </div>
+        <div class="form-group full">
+          <button class="btn-submit" onclick="addBudget()">Set Budget</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Budget Status</div>
+    <div class="month-filter">
+      <select id="budget-status-month">
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+      <input type="number" id="budget-status-year" value="2026" min="2000" max="2099" style="width:110px;"/>
+      <button class="btn-filter" onclick="loadBudgetStatus()">View Status</button>
+    </div>
+
+    <div id="budget-status-container">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Budget</th><th>Spent</th><th>Remaining</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="budget-tbody">
+            <tr><td colspan="6"><div class="empty-state"><div class="icon">💰</div>Set budgets to track spending</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MONTHLY REPORT ═══════════ -->
+  <div id="view-monthly" class="view">
+    <div class="section-title">Monthly Report</div>
+    <div class="month-filter">
+      <select id="filter-month">
+        <option value="1">January</option><option value="2">February</option>
+        <option value="3">March</option><option value="4">April</option>
+        <option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option>
+        <option value="9">September</option><option value="10">October</option>
+        <option value="11">November</option><option value="12">December</option>
+      </select>
+      <input type="number" id="filter-year" value="2026" min="2000" max="2099" style="width:110px;"/>
+      <button class="btn-filter" onclick="loadMonthlyReport()">View Report</button>
+    </div>
+
+    <div class="monthly-summary-cards">
+      <div class="summary-card income">
+        <div class="card-label">Month Income</div>
+        <div class="card-value" id="month-income">₹0</div>
+      </div>
+      <div class="summary-card expense">
+        <div class="card-label">Month Expense</div>
+        <div class="card-value" id="month-expense">₹0</div>
+      </div>
+      <div class="summary-card balance">
+        <div class="card-label">Month Balance</div>
+        <div class="card-value" id="month-balance">₹0</div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Date</th><th>Category</th><th>Description</th><th>Type</th><th>Amount</th></tr>
+        </thead>
+        <tbody id="monthly-tbody">
+          <tr><td colspan="6"><div class="empty-state"><div class="icon">📅</div>Select a month and click View Report</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════ CHARTS ═══════════ -->
+  <div id="view-charts" class="view">
+    <div class="section-title">Monthly Overview – Income vs Expense</div>
+    <div class="chart-container">
+      <canvas id="barChart"></canvas>
+    </div>
+    <div class="section-title">Expense Breakdown by Category</div>
+    <div class="chart-container" style="max-width:480px;">
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = 'http://localhost:8080/api/expenses';
+  let barChartInstance = null;
+  let pieChartInstance  = null;
+
+  // ── Init ──
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('entry-date').valueAsDate = new Date();
+    const m = new Date().getMonth() + 1;
+    const y = new Date().getFullYear();
+    document.getElementById('filter-month').value = m;
+    document.getElementById('budget-month').value = m;
+    document.getElementById('budget-status-month').value = m;
+    document.getElementById('filter-year').value = y;
+    document.getElementById('budget-year').value = y;
+    document.getElementById('budget-status-year').value = y;
+    loadDashboard();
+  });
+
+  // ── Navigation ──
+  function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (name === 'charts') loadCharts();
+  }
+
+  // ── Type Toggle ──
+  function setType(t) {
+    document.getElementById('entry-type').value = t;
+    document.getElementById('btn-income').classList.toggle('active', t === 'INCOME');
+    document.getElementById('btn-expense').classList.toggle('active', t === 'EXPENSE');
+  }
+
+  // ── Format ──
+  function fmt(n) {
+    return '₹' + Number(n || 0).toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+  }
+  function fmtDate(d) {
+    return new Date(d).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+  }
+
+  // ── Toast ──
+  function showToast(msg, err = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (err ? ' error' : '');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── LOAD DASHBOARD ──
+  async function loadDashboard() {
+    try {
+      const [sumRes, allRes] = await Promise.all([
+        fetch(API + '/summary'),
+        fetch(API)
+      ]);
+      const sum = await sumRes.json();
+      const all = await allRes.json();
+
+      document.getElementById('total-income').textContent  = fmt(sum.totalIncome);
+      document.getElementById('total-expense').textContent = fmt(sum.totalExpense);
+      document.getElementById('balance').textContent       = fmt(sum.balance);
+
+      const tbody = document.getElementById('expense-tbody');
+      document.getElementById('record-count').textContent = all.length + ' records';
+
+      if (all.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">💸</div>No transactions yet</div></td></tr>`;
+        return;
+      }
+
+      const sorted = [...all].sort((a, b) => new Date(b.date) - new Date(a.date));
+      tbody.innerHTML = sorted.map((e, i) => `
+        <tr>
+          <td style="color:var(--muted)">${i + 1}</td>
+          <td>${fmtDate(e.date)}</td>
+          <td>${e.category || '—'}</td>
+          <td style="color:var(--muted);font-size:.85rem">${e.description || '—'}</td>
+          <td><span class="badge ${e.type.toLowerCase()}">${e.type}</span></td>
+          <td class="amount-${e.type.toLowerCase()}">${e.type === 'INCOME' ? '+' : '-'}${fmt(e.amount)}</td>
+          <td><button class="btn-delete" onclick="deleteEntry(${e.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      showToast('Cannot connect to server. Is Spring Boot running?', true);
+    }
+  }
+
+  // ── SUBMIT ENTRY ──
+  async function submitEntry() {
+    const amount = parseFloat(document.getElementById('entry-amount').value);
+    const type   = document.getElementById('entry-type').value;
+    const date   = document.getElementById('entry-date').value;
+    const cat    = document.getElementById('entry-category').value;
+    const desc   = document.getElementById('entry-description').value;
+
+    if (!amount || amount <= 0) { showToast('Enter a valid amount', true); return; }
+    if (!date)   { showToast('Select a date', true); return; }
+
+    const payload = { amount, type, category: cat, description: desc, date };
+
+    try {
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error();
+      showToast('Entry added successfully ✓');
+      document.getElementById('entry-amount').value = '';
+      document.getElementById('entry-description').value = '';
+      loadDashboard();
+    } catch {
+      showToast('Failed to add entry', true);
+    }
+  }
+
+  // ── DELETE ──
+  async function deleteEntry(id) {
+    if (!confirm('Delete this entry?')) return;
+    try {
+      await fetch(API + '/' + id, { method: 'DELETE' });
+      showToast('Entry deleted');
+      loadDashboard();
+    } catch {
+      showToast('Delete failed', true);
+    }
+  }
+
+  // ── MONTHLY REPORT ──
+  async function loadMonthlyReport() {
+    const month = document.getElementById('filter-month').value;
+    const year  = document.getElementById('filter-year').value;
+
+    try {
+      const res  = await fetch(`${API}/monthly?month=${month}&year=${year}`);
+      const data = await res.json();
+
+      const tbody = document.getElementById('monthly-tbody');
+
+      let income = 0, expense = 0;
+      data.forEach(e => {
+        if (e.type === 'INCOME') income += e.amount;
+        else expense += e.amount;
+      });
+      document.getElementById('month-income').textContent  = fmt(income);
+      document.getElementById('month-expense').textContent = fmt(expense);
+      document.getElementById('month-balance').textContent = fmt(income - expense);
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">🗓️</div>No records for this month</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map((e, i) => `
+        <tr>
+          <td style="color:var(--muted)">${i + 1}</td>
+          <td>${fmtDate(e.date)}</td>
+          <td>${e.category || '—'}</td>
+          <td style="color:var(--muted);font-size:.85rem">${e.description || '—'}</td>
+          <td><span class="badge ${e.type.toLowerCase()}">${e.type}</span></td>
+          <td class="amount-${e.type.toLowerCase()}">${e.type === 'INCOME' ? '+' : '-'}${fmt(e.amount)}</td>
+        </tr>
+      `).join('');
+    } catch {
+      showToast('Failed to load monthly report', true);
+    }
+  }
+
+  // ── BUDGET ──
+  const BUDGET_API = 'http://localhost:8080/api/budgets';
+
+  async function addBudget() {
+    const category = document.getElementById('budget-category').value;
+    const amount = parseFloat(document.getElementById('budget-amount').value);
+    const month = parseInt(document.getElementById('budget-month').value);
+    const year = parseInt(document.getElementById('budget-year').value);
+    const desc = document.getElementById('budget-description').value;
+
+    if (!amount || amount <= 0) { showToast('Enter a valid budget amount', true); return; }
+
+    const payload = { category, amount, month, year, description: desc };
+
+    try {
+      const res = await fetch(BUDGET_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error();
+      showToast('Budget set successfully ✓');
+      document.getElementById('budget-amount').value = '';
+      document.getElementById('budget-description').value = '';
+      loadBudgetStatus();
+    } catch {
+      showToast('Failed to set budget', true);
+    }
+  }
+
+  async function loadBudgetStatus() {
+    const month = document.getElementById('budget-status-month').value;
+    const year = document.getElementById('budget-status-year').value;
+
+    try {
+      const [budgetsRes, statusRes] = await Promise.all([
+        fetch(`${BUDGET_API}?month=${month}&year=${year}`),
+        fetch(`${API}/budget-status?month=${month}&year=${year}`)
+      ]);
+      
+      const budgets = await budgetsRes.json();
+      const status = await statusRes.json();
+
+      const tbody = document.getElementById('budget-tbody');
+
+      if (!status.categories || status.categories.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="icon">💰</div>No budgets set for this month</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = status.categories.map(cat => {
+        const percent = Math.min((cat.actualAmount / cat.budgetAmount) * 100, 100);
+        const remaining = cat.remaining;
+        const isExceeded = cat.exceeded;
+        
+        return `
+        <tr>
+          <td>${cat.category}</td>
+          <td>${fmt(cat.budgetAmount)}</td>
+          <td class="amount-expense">${fmt(cat.actualAmount)}</td>
+          <td style="color: ${remaining < 0 ? 'var(--danger)' : 'var(--income)'}">${fmt(remaining)}</td>
+          <td>
+            <span class="badge ${isExceeded ? 'expense' : 'income'}">${isExceeded ? '⚠️ Exceeded' : '✓ On Track'}</span>
+            <div style="margin-top:6px;background:var(--surface);border-radius:4px;height:6px;overflow:hidden;">
+              <div style="width:${percent}%;background:${isExceeded ? 'var(--danger)' : 'var(--income)'};height:100%;"></div>
+            </div>
+          </td>
+          <td><button class="btn-delete" onclick="deleteBudget(${cat.id})">Delete</button></td>
+        </tr>
+      `}).join('');
+    } catch {
+      showToast('Failed to load budget status', true);
+    }
+  }
+
+  async function deleteBudget(id) {
+    if (!confirm('Delete this budget?')) return;
+    try {
+      await fetch(BUDGET_API + '/' + id, { method: 'DELETE' });
+      showToast('Budget deleted');
+      loadBudgetStatus();
+    } catch {
+      showToast('Delete failed', true);
+    }
+  }
+
+  // ── CHARTS ──
+  async function loadCharts() {
+    try {
+      const [chartRes, allRes] = await Promise.all([
+        fetch(API + '/chart-data'),
+        fetch(API)
+      ]);
+      const chartData = await chartRes.json();
+      const allData   = await allRes.json();
+
+      // ── Bar Chart: Income vs Expense by Month ──
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const monthMap = {};
+      chartData.forEach(d => {
+        const key = `${d.year}-${String(d.month).padStart(2,'0')}`;
+        if (!monthMap[key]) monthMap[key] = { label: `${monthNames[d.month-1]} ${d.year}`, income: 0, expense: 0 };
+        if (d.type === 'INCOME')  monthMap[key].income  = d.total;
+        if (d.type === 'EXPENSE') monthMap[key].expense = d.total;
+      });
+      const keys    = Object.keys(monthMap).sort();
+      const labels  = keys.map(k => monthMap[k].label);
+      const incomes = keys.map(k => monthMap[k].income);
+      const expenses= keys.map(k => monthMap[k].expense);
+
+      if (barChartInstance) barChartInstance.destroy();
+      barChartInstance = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Income',  data: incomes,  backgroundColor: 'rgba(110,231,183,.75)', borderRadius: 6 },
+            { label: 'Expense', data: expenses, backgroundColor: 'rgba(248,113,113,.75)', borderRadius: 6 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: '#9ca3af' } }
+          },
+          scales: {
+            x: { ticks: { color: '#9ca3af' }, grid: { color: '#2a2f3d' } },
+            y: { ticks: { color: '#9ca3af' }, grid: { color: '#2a2f3d' } }
+          }
+        }
+      });
+
+      // ── Pie Chart: Expense by Category ──
+      const catMap = {};
+      allData.filter(e => e.type === 'EXPENSE').forEach(e => {
+        const c = e.category || 'Other';
+        catMap[c] = (catMap[c] || 0) + e.amount;
+      });
+      const catLabels = Object.keys(catMap);
+      const catValues = Object.values(catMap);
+      const colors = ['#6ee7b7','#f87171','#818cf8','#fb923c','#34d399','#f472b6','#60a5fa','#fbbf24','#a3e635'];
+
+      if (pieChartInstance) pieChartInstance.destroy();
+      if (catLabels.length === 0) {
+        document.getElementById('pieChart').parentElement.innerHTML = `<div class="empty-state"><div class="icon">🥧</div>No expense data yet</div>`;
+        return;
+      }
+      pieChartInstance = new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catValues,
+            backgroundColor: colors,
+            borderWidth: 2,
+            borderColor: '#1c2029'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#9ca3af', padding: 16 } }
+          }
+        }
+      });
+
+    } catch {
+      showToast('Failed to load chart data', true);
+    }
+  }
+</script>
+</body>
+</html>

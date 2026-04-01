@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "spring-boot",
+            "request": "launch",
+            "name": "ExpenseTrackerApplication",
+            "mainClass": "com.expense.tracker.ExpenseTrackerApplication",
+            "projectName": "expense-tracker",
+            "env": {},
+            "args": [],
+            "vmArgs": "",
+            "serverReadyAction": {
+                "pattern": "Tomcat started on port (\\d+)",
+                "uriFormat": "http://localhost:%s",
+                "action": "openExternally"
+            }
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "Run ExpenseTrackerApplication (No Debug)",
+            "mainClass": "com.expense.tracker.ExpenseTrackerApplication",
+            "projectName": "expense-tracker",
+            "console": "internalConsole"
+        }
+    ]
+}
