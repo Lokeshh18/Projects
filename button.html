@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Enroll - ASC</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .form {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        form {
+            background-color: aliceblue;
+            padding: 25px 35px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 3px 3px 10px 1px gray;
+        }
+
+        label {
+            font-weight: bold;
+            /* display: block; */
+            margin-top: 5pxpx;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            border: 1px solid #aaa;
+        }
+        
+        .gender label {
+            font-weight: normal;
+        }
+
+        .inline {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .bt {
+            margin: 10px;
+            height: 30px;
+            width: 40%;
+            border: none;
+            background-color: goldenrod;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .bt:hover {
+            background-color: #e1c35e;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Sports Academy Enrollment</h1>
+
+    <div class="form">
+        <form>
+
+            <label for="name">Name</label>
+            <input type="text" id="name" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+
+            <label>Gender</label><br>
+            <div class="gender">
+                <input type="radio" name="gender" id="male">
+                <label for="male">Male</label>
+                <input type="radio" name="gender" id="female">
+                <label for="female">Female</label>
+                <input type="radio" name="gender" id="others">
+                <label for="others">Others</label>
+            </div>
+            <label>Sports Interested</label>
+            <div class="inline">
+                <input type="checkbox"> Football<br>
+                <input type="checkbox"> Cricket<br>
+                <input type="checkbox"> Badminton<br>
+            </div>
+
+            <label for="course">Training Program</label>
+            <select id="course">
+                <option>-- Select Program --</option>
+                <option>Beginner Training</option>
+                <option>Advanced Training</option>
+                <option>Professional Coaching</option>
+            </select>
+            <center>
+                <button class="bt">Enroll</button>
+            </center>
+
+        </form>
+    </div>
+
+</body>
+
+</html>

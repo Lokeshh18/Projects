@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play TN &mdash; Tamil Nadu Sports Platform</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a2463;--blue:#1b4fc4;--accent:#3a86ff;--gold:#ffd60a;
+  --light-bg:#f0f6ff;--white:#ffffff;--text:#0a1f44;--muted:#5a7ab0;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--light-bg);color:var(--text);overflow-x:hidden;}
+
+/* NAV */
+.navbar{background:var(--navy)!important;box-shadow:0 2px 20px rgba(10,36,99,.4);}
+.navbar-brand{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:#fff!important;}
+.navbar-brand span{color:var(--gold);}
+.nav-link{color:rgba(255,255,255,.78)!important;font-weight:500;font-size:.92rem;transition:color .2s;}
+.nav-link:hover{color:var(--gold)!important;}
+.nav-cta{background:var(--accent);color:#fff!important;border-radius:50px;padding:.35rem 1.2rem!important;font-weight:600;}
+.nav-cta:hover{background:var(--gold);color:var(--navy)!important;}
+
+/* HERO */
+#hero{min-height:92vh;background:linear-gradient(135deg,var(--navy) 0%,#0d3b9e 50%,var(--blue) 100%);
+  display:flex;align-items:center;text-align:center;padding:5rem 1rem 4rem;position:relative;overflow:hidden;}
+.hero-ring{position:absolute;border-radius:50%;border:1px solid rgba(58,134,255,.15);pointer-events:none;}
+.hero-ring:nth-child(1){width:500px;height:500px;top:-150px;left:-100px;}
+.hero-ring:nth-child(2){width:600px;height:600px;bottom:-200px;right:-100px;}
+.hero-badge{display:inline-block;background:rgba(255,214,10,.15);border:1px solid var(--gold);
+  color:var(--gold);font-size:.72rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  padding:.32rem 1rem;border-radius:50px;margin-bottom:1.2rem;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,9vw,7rem);
+  color:#fff;line-height:1;letter-spacing:4px;}
+.hero-title span{color:var(--gold);}
+.hero-sub{font-size:clamp(1rem,2.2vw,1.25rem);font-weight:300;
+  color:rgba(255,255,255,.78);max-width:580px;margin:1rem auto 0;}
+.hero-stats{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center;margin-top:3rem;}
+.hstat .num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);letter-spacing:2px;}
+.hstat .lbl{font-size:.75rem;color:rgba(255,255,255,.6);letter-spacing:1px;text-transform:uppercase;}
+
+/* SECTION UTILS */
+.sec-tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);
+  letter-spacing:2px;color:var(--navy);line-height:1.1;}
+.sec-title.light{color:#fff;}
+
+/* MATCHES */
+#matches{background:var(--light-bg);padding:5rem 0;}
+.match-card{border:none!important;border-radius:16px!important;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;}
+.match-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(10,36,99,.12)!important;}
+.match-card .card-header{background:linear-gradient(135deg,var(--navy),var(--blue));
+  color:#fff;font-weight:700;font-size:.95rem;padding:.75rem 1.2rem;border:none;}
+.match-card .card-body{background:#fff;}
+.match-meta{font-size:.87rem;color:var(--muted);line-height:2;}
+.sport-badge{display:inline-block;background:var(--light-bg);border:1.5px solid var(--accent);
+  color:var(--blue);font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:.22rem .7rem;border-radius:50px;}
+.btn-register{background:var(--blue);color:#fff;border:none;border-radius:50px;
+  padding:.5rem 1.3rem;font-size:.88rem;font-weight:600;transition:background .2s,transform .15s;}
+.btn-register:hover{background:var(--navy);transform:scale(1.04);}
+
+/* REGISTRATION */
+#register{background:var(--navy);padding:5rem 0;}
+.reg-card{background:#fff;border-radius:20px;padding:2.5rem;border:none;}
+.form-label{font-weight:600;font-size:.87rem;color:var(--navy);}
+.form-control,.form-select{border:1.5px solid #c8daf5;border-radius:10px;
+  font-size:.92rem;transition:border-color .2s;}
+.form-control:focus,.form-select:focus{border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(58,134,255,.15);}
+.btn-submit{background:linear-gradient(135deg,var(--blue),var(--accent));
+  color:#fff;border:none;border-radius:50px;padding:.75rem 2rem;
+  font-size:1rem;font-weight:700;width:100%;transition:transform .15s,box-shadow .2s;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,79,196,.35);}
+
+/* LEADERBOARD */
+#leaderboard{background:var(--white);padding:5rem 0;}
+.lb-tabs{display:flex;gap:.5rem;background:var(--light-bg);border-radius:50px;
+  padding:.3rem;margin-bottom:2rem;width:fit-content;}
+.lb-tab{border:none;background:transparent;color:var(--muted);font-weight:600;
+  font-size:.87rem;padding:.45rem 1.3rem;border-radius:50px;cursor:pointer;transition:all .2s;}
+.lb-tab.active{background:var(--navy);color:#fff;}
+.lb-tab:hover:not(.active){background:rgba(10,36,99,.08);}
+.district-select{border:1.5px solid #c8daf5;border-radius:50px;padding:.4rem 1.2rem;
+  font-size:.87rem;font-weight:600;color:var(--navy);background:#fff;cursor:pointer;
+  margin-bottom:2rem;min-width:220px;}
+.lb-table-wrap{border-radius:16px;overflow:hidden;border:1.5px solid #e0eaf8;}
+.lb-table{width:100%;border-collapse:collapse;}
+.lb-table thead th{background:var(--navy);color:#fff;font-size:.82rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;padding:.85rem 1.1rem;}
+.lb-table tbody tr{border-bottom:1px solid #eaf0fb;transition:background .15s;}
+.lb-table tbody tr:hover{background:#f4f8ff;}
+.lb-table tbody td{padding:.85rem 1.1rem;font-size:.9rem;}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:50%;font-weight:700;font-size:.85rem;}
+.rank-1{background:#ffd700;color:#7a5c00;}
+.rank-2{background:#c8c8c8;color:#444;}
+.rank-3{background:#c87941;color:#fff;}
+.rank-n{background:var(--light-bg);color:var(--muted);}
+.trend-up{color:#2ecc71;font-size:.8rem;}
+.trend-dn{color:#e74c3c;font-size:.8rem;}
+.trend-eq{color:var(--muted);font-size:.8rem;}
+.pts-pill{background:var(--light-bg);color:var(--blue);font-weight:700;
+  font-size:.83rem;padding:.2rem .65rem;border-radius:50px;}
+.sport-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+.dot-cricket{background:#e67e22;}
+.dot-football{background:#27ae60;}
+.dot-kabaddi{background:#8e44ad;}
+.dot-volleyball{background:#e74c3c;}
+.dot-badminton{background:#2980b9;}
+
+/* STATE SUMMARY CARDS */
+.state-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem;}
+.ss-card{background:var(--light-bg);border-radius:14px;padding:1.2rem;text-align:center;}
+.ss-card .ss-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--blue);letter-spacing:1px;}
+.ss-card .ss-lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+
+/* ABOUT */
+#about{background:linear-gradient(135deg,var(--navy) 0%,#0d3b9e 100%);padding:4rem 0;}
+.about-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;padding:2rem;transition:background .2s;}
+.about-card:hover{background:rgba(255,255,255,.13);}
+.about-icon{font-size:2rem;margin-bottom:.8rem;}
+.about-card h5{color:#fff;font-weight:700;font-size:1rem;}
+.about-card p{color:rgba(255,255,255,.7);font-size:.87rem;line-height:1.6;}
+
+/* FOOTER */
+footer{background:#050e1f;color:rgba(255,255,255,.55);padding:2.5rem 0;text-align:center;font-size:.85rem;}
+footer .brand{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);letter-spacing:3px;}
+
+/* SPORT SUMMARY CARDS */
+.sport-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin-bottom:2rem;}
+.sport-hero-card{border-radius:14px;padding:1.1rem;text-align:center;color:#fff;position:relative;overflow:hidden;}
+.sport-hero-card .sh-emoji{font-size:1.8rem;display:block;margin-bottom:.3rem;}
+.sport-hero-card .sh-name{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.85;}
+.sport-hero-card .sh-leader{font-size:.78rem;font-weight:600;margin-top:.4rem;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sport-hero-card .sh-pts{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:1px;display:block;}
+
+/* SPORT FILTER PILL TABS */
+.sport-pill-tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
+.sport-pill-btn{border:1.5px solid #c8daf5;background:#fff;color:var(--muted);
+  font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  padding:.32rem .9rem;border-radius:50px;cursor:pointer;transition:all .18s;}
+.sport-pill-btn.active{color:#fff;border-color:transparent;}
+.sport-pill-btn[data-sport="Cricket"].active{background:#e67e22;}
+.sport-pill-btn[data-sport="Football"].active{background:#27ae60;}
+.sport-pill-btn[data-sport="Kabaddi"].active{background:#8e44ad;}
+.sport-pill-btn[data-sport="Handball"].active{background:#c0392b;}
+.sport-pill-btn[data-sport="Volleyball"].active{background:#e74c3c;}
+.sport-pill-btn[data-sport="Badminton"].active{background:#2980b9;}
+.sport-pill-btn[data-sport="Athletics"].active{background:#16a085;}
+
+/* ANIMATIONS */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeInUp .6s ease both;}
+.fade-in-2{animation:fadeInUp .6s .15s ease both;}
+.fade-in-3{animation:fadeInUp .6s .3s ease both;}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#">PLAY<span>TN</span></a>
+    <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto gap-1">
+        <li class="nav-item"><a class="nav-link" href="#matches">Matches</a></li>
+        <li class="nav-item"><a class="nav-link" href="#leaderboard">Leaderboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#register">Register</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item ms-2"><a class="nav-link nav-cta" href="#register">Join Now</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-ring"></div>
+  <div class="hero-ring"></div>
+  <div class="container position-relative">
+    <div class="hero-badge fade-in">Tamil Nadu&rsquo;s Unified Sports Platform</div>
+    <h1 class="hero-title fade-in-2">PLAY <span>TN</span></h1>
+    <p class="hero-sub fade-in-2">Connecting Athletes, Organizers &amp; Venues Across All 38 Districts</p>
+    <div class="d-flex gap-3 justify-content-center mt-4 fade-in-3">
+      <a href="#matches" class="btn btn-warning fw-bold px-4 py-2 rounded-pill">View Matches</a>
+      <a href="#register" class="btn btn-outline-light fw-semibold px-4 py-2 rounded-pill">Register Now</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="num">10M+</div><div class="lbl">Athletes</div></div>
+      <div class="hstat"><div class="num">38</div><div class="lbl">Districts</div></div>
+      <div class="hstat"><div class="num">15+</div><div class="lbl">Sports</div></div>
+      <div class="hstat"><div class="num">450K</div><div class="lbl">Target Users</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- UPCOMING MATCHES -->
+<section id="matches" class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="sec-tag">Live &amp; Upcoming</span>
+      <h2 class="sec-title">Upcoming Matches</h2>
+    </div>
+    <div class="row g-4" id="matchGrid">
+      <!-- JS rendered -->
+    </div>
+    <div class="text-center mt-4">
+      <button class="btn rounded-pill px-4 py-2 fw-semibold" style="border:1.5px solid var(--blue);color:var(--blue);" onclick="loadMoreMatches()">Load More Matches</button>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section id="leaderboard" class="py-5">
+  <div class="container">
+    <div class="text-center mb-4">
+      <span class="sec-tag">Rankings</span>
+      <h2 class="sec-title">Leaderboard</h2>
+      <p class="text-muted">Live standings across Tamil Nadu&rsquo;s sports ecosystem</p>
+    </div>
+
+    <!-- Tab toggle -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+      <div class="lb-tabs">
+        <button class="lb-tab active" onclick="switchTab('state',this)">&#127942; State</button>
+        <button class="lb-tab" onclick="switchTab('district',this)">&#128205; District</button>
+        <button class="lb-tab" onclick="switchTab('sport',this)">&#9917; Sport-wise</button>
+      </div>
+      <div class="d-flex gap-2 align-items-center" id="filterRow">
+        <select class="district-select" id="districtFilter" onchange="renderDistrictLb()" style="display:none">
+          <option value="Salem">Salem</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Madurai">Madurai</option>
+          <option value="Tiruppur">Tiruppur</option>
+          <option value="Erode">Erode</option>
+          <option value="Tiruchirappalli">Tiruchirappalli</option>
+          <option value="Vellore">Vellore</option>
+        </select>
+        <select class="district-select" id="sportFilter" onchange="renderSportLb()" style="display:none">
+          <option value="Cricket">&#127955; Cricket</option>
+          <option value="Football">&#9917; Football</option>
+          <option value="Kabaddi">&#129337; Kabaddi</option>
+          <option value="Volleyball">&#127944; Volleyball</option>
+          <option value="Badminton">&#127992; Badminton</option>
+          <option value="Athletics">&#127939; Athletics</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- State View -->
+    <div id="stateView">
+      <div class="state-summary" id="stateSummary"></div>
+      <div class="lb-table-wrap">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Player</th><th>District</th><th>Sport</th>
+              <th>Matches</th><th>Wins</th><th>Points</th><th>Trend</th>
+            </tr>
+          </thead>
+          <tbody id="stateLbBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- District View -->
+    <div id="districtView" style="display:none">
+      <div class="lb-table-wrap">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Player</th><th>Sport</th>
+              <th>Matches</th><th>Wins</th><th>Win%</th><th>Points</th><th>Trend</th>
+            </tr>
+          </thead>
+          <tbody id="districtLbBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sport View -->
+    <div id="sportView" style="display:none">
+      <div class="sport-summary" id="sportSummary"></div>
+      <div class="sport-pill-tabs" id="sportPillTabs"></div>
+      <div class="lb-table-wrap">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Player</th><th>District</th>
+              <th>Matches</th><th>Wins</th><th>Win%</th><th>Points</th><th>Trend</th>
+            </tr>
+          </thead>
+          <tbody id="sportLbBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- REGISTRATION -->
+<section id="register">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <span class="sec-tag" style="color:rgba(255,255,255,.7)">Join the Platform</span>
+      <h2 class="sec-title light">Player Registration</h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-5">
+        <div class="reg-card shadow-lg">
+          <form onsubmit="registerPlayer(event)">
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" placeholder="Enter your full name" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mobile Number</label>
+              <input type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">District</label>
+              <select class="form-select" required>
+                <option value="">Select District</option>
+                <option>Salem</option><option>Chennai</option><option>Coimbatore</option>
+                <option>Madurai</option><option>Tiruppur</option><option>Erode</option>
+                <option>Tiruchirappalli</option><option>Vellore</option><option>Thanjavur</option>
+                <option>Tirunelveli</option>
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Sport</label>
+              <select class="form-select" required>
+                <option value="">Select Sport</option>
+                <option>Cricket</option><option>Football</option><option>Kabaddi</option>
+                <option>Volleyball</option><option>Badminton</option><option>Athletics</option>
+              </select>
+            </div>
+            <button class="btn-submit">Submit Registration &rarr;</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="sec-tag" style="color:rgba(255,255,255,.6)">About the Platform</span>
+      <h2 class="sec-title light">Why Play TN?</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="about-card h-100">
+          <div class="about-icon">&#128205;</div>
+          <h5>Location-Based Discovery</h5>
+          <p>Find events, teams, and venues near you using GPS-powered smart recommendations.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="about-card h-100">
+          <div class="about-icon">&#127942;</div>
+          <h5>Tournament Management</h5>
+          <p>Organizers can schedule, manage, and track tournaments with live bracket management.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="about-card h-100">
+          <div class="about-icon">&#128202;</div>
+          <h5>Data-Driven Insights</h5>
+          <p>State and district-level analytics for coaches, players, and sports development bodies.</p>
+        </div>
+      </div>
+    </div>
+    <p class="text-center mt-4" style="color:rgba(255,255,255,.55);font-size:.9rem;">
+      Submitted by Aakash S, Mohanbabu S, Lokesh S, Raghav V &mdash; Dept. of CSE (AIML) &mdash; 09/05/2026
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="brand">PLAY TN</div>
+    <p class="mt-1 mb-0">One State. One Platform. Unlimited Potential.</p>
+    <p class="mt-1" style="font-size:.78rem;">&copy; 2026 Play TN &mdash; Web Technology Project</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// DATA
+const matches = [
+  {title:"District Cricket Tournament",location:"Salem",date:"10 Jun 2026",sport:"Cricket",sportClass:"cricket",emoji:"&#127955;"},
+  {title:"Football League Match",location:"Coimbatore",date:"15 Jun 2026",sport:"Football",sportClass:"football",emoji:"&#9917;"},
+  {title:"Kabaddi Open Match",location:"Tiruppur",date:"18 Jun 2026",sport:"Kabaddi",sportClass:"kabaddi",emoji:"&#129337;"},
+  {title:"Badminton District Cup",location:"Chennai",date:"22 Jun 2026",sport:"Badminton",sportClass:"badminton",emoji:"&#127992;"},
+  {title:"Volleyball State Qualifier",location:"Madurai",date:"28 Jun 2026",sport:"Volleyball",sportClass:"volleyball",emoji:"&#127944;"},
+  {title:"Athletics Open",location:"Erode",date:"5 Jul 2026",sport:"Athletics",sportClass:"cricket",emoji:"&#127939;"},
+];
+let matchesShown = 3;
+
+function renderMatches(){
+  const grid = document.getElementById('matchGrid');
+  grid.innerHTML = '';
+  for(let i=0;i<Math.min(matchesShown,matches.length);i++){
+    const m = matches[i];
+    grid.innerHTML += `
+    <div class="col-md-4">
+      <div class="card match-card shadow-sm h-100">
+        <div class="card-header">${m.emoji} ${m.title}</div>
+        <div class="card-body">
+          <p class="match-meta">
+            &#128205; <strong>${m.location}</strong><br>
+            &#128197; ${m.date}<br>
+            <span class="sport-badge">${m.sport}</span>
+          </p>
+          <button class="btn-register mt-2 w-100" onclick="location.href='#register'">Register Now</button>
+        </div>
+      </div>
+    </div>`;
+  }
+}
+function loadMoreMatches(){matchesShown=matches.length;renderMatches();}
+renderMatches();
+
+// LEADERBOARD DATA
+const statePlayers = [
+  {name:"Mohanbabu S",district:"Salem",sport:"Cricket",matches:24,wins:21,pts:420,trend:"up"},
+  {name:"Raghav V",district:"Coimbatore",sport:"Football",matches:22,wins:19,pts:398,trend:"up"},
+  {name:"Divyesh A",district:"Tiruchirappalli",sport:"Kabaddi",matches:23,wins:18,pts:368,trend:"up"},
+  {name:"Lokesh S",district:"Tiruppur",sport:"Handball",matches:20,wins:17,pts:352,trend:"up"},
+  {name:"Priya Selvam",district:"Coimbatore",sport:"Badminton",matches:22,wins:17,pts:355,trend:"up"},
+  {name:"Sathiyajeeva",district:"Coimbatore",sport:"Athletics",matches:20,wins:16,pts:336,trend:"up"},
+  {name:"Anitha R",district:"Erode",sport:"Volleyball",matches:19,wins:12,pts:254,trend:"eq"},
+  {name:"Senthil M",district:"Tiruchirappalli",sport:"Football",matches:17,wins:11,pts:238,trend:"up"},
+  {name:"Murugan S",district:"Tiruppur",sport:"Cricket",matches:18,wins:13,pts:276,trend:"up"},
+  {name:"Meena S",district:"Chennai",sport:"Badminton",matches:19,wins:12,pts:246,trend:"up"},
+];
+
+const districtData = {
+  Salem:[
+    {name:"Divya Lakshmi",sport:"Kabaddi",matches:21,wins:14,pts:298,trend:"dn"},
+    {name:"Kalam S",sport:"Cricket",matches:18,wins:13,pts:264,trend:"up"},
+    {name:"Nithya R",sport:"Badminton",matches:16,wins:11,pts:234,trend:"eq"},
+    {name:"Balu M",sport:"Football",matches:15,wins:9,pts:198,trend:"up"},
+    {name:"Saranya K",sport:"Volleyball",matches:13,wins:7,pts:155,trend:"dn"},
+  ],
+  Chennai:[
+    {name:"Arjun Kumar",sport:"Cricket",matches:24,wins:19,pts:380,trend:"up"},
+    {name:"Rajesh V",sport:"Athletics",matches:15,wins:9,pts:198,trend:"eq"},
+    {name:"Meena S",sport:"Badminton",matches:19,wins:12,pts:246,trend:"up"},
+    {name:"Suresh K",sport:"Football",matches:17,wins:10,pts:210,trend:"dn"},
+    {name:"Preethi A",sport:"Kabaddi",matches:14,wins:8,pts:172,trend:"eq"},
+  ],
+  Coimbatore:[
+    {name:"Priya Selvam",sport:"Badminton",matches:22,wins:17,pts:355,trend:"up"},
+    {name:"Deepa N",sport:"Kabaddi",matches:14,wins:8,pts:182,trend:"up"},
+    {name:"Hari P",sport:"Cricket",matches:18,wins:11,pts:224,trend:"eq"},
+    {name:"Vani R",sport:"Volleyball",matches:15,wins:9,pts:188,trend:"dn"},
+    {name:"Rajan T",sport:"Football",matches:16,wins:8,pts:168,trend:"up"},
+  ],
+  Madurai:[
+    {name:"Karthik Raja",sport:"Football",matches:20,wins:15,pts:318,trend:"eq"},
+    {name:"Sundar M",sport:"Cricket",matches:17,wins:11,pts:232,trend:"up"},
+    {name:"Lalitha B",sport:"Kabaddi",matches:15,wins:9,pts:192,trend:"dn"},
+    {name:"Vetri S",sport:"Athletics",matches:13,wins:7,pts:148,trend:"eq"},
+    {name:"Pooja K",sport:"Badminton",matches:12,wins:6,pts:132,trend:"up"},
+  ],
+  Tiruppur:[
+    {name:"Murugan S",sport:"Cricket",matches:18,wins:13,pts:276,trend:"up"},
+    {name:"Akila R",sport:"Volleyball",matches:16,wins:10,pts:212,trend:"eq"},
+    {name:"Dinesh K",sport:"Football",matches:14,wins:8,pts:172,trend:"up"},
+    {name:"Bharathi M",sport:"Kabaddi",matches:13,wins:7,pts:152,trend:"dn"},
+    {name:"Chitra V",sport:"Badminton",matches:12,wins:6,pts:128,trend:"eq"},
+  ],
+  Erode:[
+    {name:"Anitha R",sport:"Volleyball",matches:19,wins:12,pts:254,trend:"eq"},
+    {name:"Mani S",sport:"Cricket",matches:16,wins:10,pts:212,trend:"up"},
+    {name:"Usha K",sport:"Kabaddi",matches:14,wins:8,pts:176,trend:"dn"},
+    {name:"Prabhu T",sport:"Football",matches:13,wins:7,pts:154,trend:"up"},
+    {name:"Santha M",sport:"Athletics",matches:11,wins:5,pts:112,trend:"eq"},
+  ],
+  Tiruchirappalli:[
+    {name:"Senthil M",sport:"Football",matches:17,wins:11,pts:238,trend:"up"},
+    {name:"Kaveri R",sport:"Cricket",matches:15,wins:9,pts:196,trend:"eq"},
+    {name:"Pandian K",sport:"Kabaddi",matches:14,wins:8,pts:178,trend:"dn"},
+    {name:"Revathi S",sport:"Badminton",matches:12,wins:6,pts:134,trend:"up"},
+    {name:"Gopal M",sport:"Volleyball",matches:11,wins:5,pts:112,trend:"eq"},
+  ],
+  Vellore:[
+    {name:"Kavitha P",sport:"Cricket",matches:16,wins:10,pts:215,trend:"dn"},
+    {name:"Ramesh N",sport:"Football",matches:14,wins:8,pts:174,trend:"up"},
+    {name:"Sudha K",sport:"Kabaddi",matches:13,wins:7,pts:156,trend:"eq"},
+    {name:"Vijay R",sport:"Athletics",matches:12,wins:6,pts:132,trend:"dn"},
+    {name:"Malathi S",sport:"Badminton",matches:11,wins:5,pts:114,trend:"up"},
+  ],
+};
+
+const sportColors={Cricket:"#e67e22",Football:"#27ae60",Kabaddi:"#8e44ad",Volleyball:"#e74c3c",Badminton:"#2980b9",Athletics:"#16a085"};
+const trendIcon={up:'<span class="trend-up">&#9650;</span>',dn:'<span class="trend-dn">&#9660;</span>',eq:'<span class="trend-eq">&mdash;</span>'};
+
+function rankBadge(i){
+  if(i===0) return '<span class="rank-badge rank-1">1</span>';
+  if(i===1) return '<span class="rank-badge rank-2">2</span>';
+  if(i===2) return '<span class="rank-badge rank-3">3</span>';
+  return '<span class="rank-badge rank-n">'+(i+1)+'</span>';
+}
+
+function renderStateLb(){
+  document.getElementById('stateSummary').innerHTML = `
+    <div class="ss-card"><div class="ss-num">${statePlayers.length}</div><div class="ss-lbl">Total Players</div></div>
+    <div class="ss-card"><div class="ss-num">8</div><div class="ss-lbl">Districts</div></div>
+    <div class="ss-card"><div class="ss-num">${Math.max(...statePlayers.map(p=>p.pts))}</div><div class="ss-lbl">Top Score</div></div>
+    <div class="ss-card"><div class="ss-num">5</div><div class="ss-lbl">Sports</div></div>
+  `;
+  const tbody = document.getElementById('stateLbBody');
+  tbody.innerHTML = statePlayers.map((p,i)=>`
+    <tr>
+      <td>${rankBadge(i)}</td>
+      <td><strong>${p.name}</strong></td>
+      <td><small style="color:var(--muted)">${p.district}</small></td>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${sportColors[p.sport]||'#888'};margin-right:5px;"></span>${p.sport}</td>
+      <td>${p.matches}</td>
+      <td>${p.wins}</td>
+      <td><span class="pts-pill">${p.pts}</span></td>
+      <td>${trendIcon[p.trend]}</td>
+    </tr>`).join('');
+}
+
+function renderDistrictLb(){
+  const dist = document.getElementById('districtFilter').value;
+  const players = districtData[dist]||[];
+  const total = players.reduce((s,p)=>s+p.pts,0);
+  const tbody = document.getElementById('districtLbBody');
+  tbody.innerHTML = players.map((p,i)=>{
+    const pct = Math.round((p.wins/p.matches)*100);
+    return `<tr>
+      <td>${rankBadge(i)}</td>
+      <td><strong>${p.name}</strong></td>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${sportColors[p.sport]||'#888'};margin-right:5px;"></span>${p.sport}</td>
+      <td>${p.matches}</td>
+      <td>${p.wins}</td>
+      <td>${pct}%</td>
+      <td><span class="pts-pill">${p.pts}</span></td>
+      <td>${trendIcon[p.trend]}</td>
+    </tr>`;
+  }).join('');
+}
+
+// Sport-wise data — top players per sport (statewide)
+const sportData = {
+  Cricket:[
+    {name:"Mohanbabu S",district:"Salem",matches:24,wins:21,pts:420,trend:"up"},
+    {name:"Murugan S",district:"Tiruppur",matches:18,wins:13,pts:276,trend:"up"},
+    {name:"Kavitha P",district:"Vellore",matches:16,wins:10,pts:215,trend:"dn"},
+    {name:"Kalam S",district:"Salem",matches:18,wins:13,pts:264,trend:"up"},
+    {name:"Sundar M",district:"Madurai",matches:17,wins:11,pts:232,trend:"up"},
+    {name:"Hari P",district:"Coimbatore",matches:18,wins:11,pts:224,trend:"eq"},
+    {name:"Mani S",district:"Erode",matches:16,wins:10,pts:212,trend:"up"},
+    {name:"Kaveri R",district:"Tiruchirappalli",matches:15,wins:9,pts:196,trend:"eq"},
+  ],
+  Football:[
+    {name:"Raghav V",district:"Coimbatore",matches:22,wins:19,pts:398,trend:"up"},
+    {name:"Senthil M",district:"Tiruchirappalli",matches:17,wins:11,pts:238,trend:"up"},
+    {name:"Suresh K",district:"Chennai",matches:17,wins:10,pts:210,trend:"dn"},
+    {name:"Balu M",district:"Salem",matches:15,wins:9,pts:198,trend:"up"},
+    {name:"Rajan T",district:"Coimbatore",matches:16,wins:8,pts:168,trend:"up"},
+    {name:"Dinesh K",district:"Tiruppur",matches:14,wins:8,pts:172,trend:"up"},
+    {name:"Prabhu T",district:"Erode",matches:13,wins:7,pts:154,trend:"up"},
+    {name:"Ramesh N",district:"Vellore",matches:14,wins:8,pts:174,trend:"up"},
+  ],
+  Kabaddi:[
+    {name:"Divyesh A",district:"Tiruchirappalli",matches:23,wins:18,pts:368,trend:"up"},
+    {name:"Deepa N",district:"Coimbatore",matches:14,wins:8,pts:182,trend:"up"},
+    {name:"Preethi A",district:"Chennai",matches:14,wins:8,pts:172,trend:"eq"},
+    {name:"Lalitha B",district:"Madurai",matches:15,wins:9,pts:192,trend:"dn"},
+    {name:"Bharathi M",district:"Tiruppur",matches:13,wins:7,pts:152,trend:"dn"},
+    {name:"Usha K",district:"Erode",matches:14,wins:8,pts:176,trend:"dn"},
+    {name:"Pandian K",district:"Tiruchirappalli",matches:14,wins:8,pts:178,trend:"dn"},
+    {name:"Sudha K",district:"Vellore",matches:13,wins:7,pts:156,trend:"eq"},
+  ],
+  Handball:[
+    {name:"Lokesh S",district:"Tiruppur",matches:20,wins:17,pts:352,trend:"up"},
+    {name:"Arun M",district:"Chennai",matches:18,wins:13,pts:272,trend:"up"},
+    {name:"Priya K",district:"Coimbatore",matches:16,wins:11,pts:228,trend:"eq"},
+    {name:"Kiran R",district:"Madurai",matches:15,wins:10,pts:208,trend:"up"},
+    {name:"Siva T",district:"Tiruppur",matches:14,wins:9,pts:188,trend:"dn"},
+    {name:"Meena V",district:"Erode",matches:13,wins:8,pts:166,trend:"eq"},
+    {name:"Ravi S",district:"Tiruchirappalli",matches:12,wins:7,pts:148,trend:"up"},
+    {name:"Thilaga P",district:"Vellore",matches:11,wins:6,pts:128,trend:"eq"},
+  ],
+  Volleyball:[
+    {name:"Anitha R",district:"Erode",matches:19,wins:12,pts:254,trend:"eq"},
+    {name:"Akila R",district:"Tiruppur",matches:16,wins:10,pts:212,trend:"eq"},
+    {name:"Vani R",district:"Coimbatore",matches:15,wins:9,pts:188,trend:"dn"},
+    {name:"Saranya K",district:"Salem",matches:13,wins:7,pts:155,trend:"dn"},
+    {name:"Gopal M",district:"Tiruchirappalli",matches:11,wins:5,pts:112,trend:"eq"},
+    {name:"Malathi S",district:"Vellore",matches:11,wins:5,pts:114,trend:"up"},
+  ],
+  Badminton:[
+    {name:"Priya Selvam",district:"Coimbatore",matches:22,wins:17,pts:355,trend:"up"},
+    {name:"Meena S",district:"Chennai",matches:19,wins:12,pts:246,trend:"up"},
+    {name:"Nithya R",district:"Salem",matches:16,wins:11,pts:234,trend:"eq"},
+    {name:"Chitra V",district:"Tiruppur",matches:12,wins:6,pts:128,trend:"eq"},
+    {name:"Revathi S",district:"Tiruchirappalli",matches:12,wins:6,pts:134,trend:"up"},
+    {name:"Pooja K",district:"Madurai",matches:12,wins:6,pts:132,trend:"up"},
+    {name:"Vijay R",district:"Vellore",matches:12,wins:6,pts:132,trend:"dn"},
+  ],
+  Athletics:[
+    {name:"Sathiyajeeva",district:"Coimbatore",matches:20,wins:16,pts:336,trend:"up"},
+    {name:"Vetri S",district:"Madurai",matches:13,wins:7,pts:148,trend:"eq"},
+    {name:"Santha M",district:"Erode",matches:11,wins:5,pts:112,trend:"eq"},
+    {name:"Vijay R",district:"Vellore",matches:12,wins:6,pts:132,trend:"dn"},
+  ],
+};
+
+const sportMeta={
+  Cricket:{emoji:"&#127955;",color:"#e67e22",bg:"linear-gradient(135deg,#e67e22,#d35400)"},
+  Football:{emoji:"&#9917;",color:"#27ae60",bg:"linear-gradient(135deg,#27ae60,#1e8449)"},
+  Kabaddi:{emoji:"&#129337;",color:"#8e44ad",bg:"linear-gradient(135deg,#8e44ad,#6c3483)"},
+  Handball:{emoji:"&#129336;",color:"#c0392b",bg:"linear-gradient(135deg,#c0392b,#922b21)"},
+  Volleyball:{emoji:"&#127944;",color:"#e74c3c",bg:"linear-gradient(135deg,#e74c3c,#c0392b)"},
+  Badminton:{emoji:"&#127992;",color:"#2980b9",bg:"linear-gradient(135deg,#2980b9,#1a5276)"},
+  Athletics:{emoji:"&#127939;",color:"#16a085",bg:"linear-gradient(135deg,#16a085,#0e6655)"},
+};
+
+let activeSport = 'Cricket';
+
+function renderSportSummary(){
+  const el = document.getElementById('sportSummary');
+  el.innerHTML = Object.keys(sportData).map(s=>{
+    const top = sportData[s][0];
+    return `<div class="sport-hero-card" style="background:${sportMeta[s].bg}">
+      <span class="sh-emoji">${sportMeta[s].emoji}</span>
+      <span class="sh-name">${s}</span>
+      <span class="sh-pts">${top.pts}</span>
+      <div class="sh-leader">&#127941; ${top.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSportPillTabs(){
+  const el = document.getElementById('sportPillTabs');
+  el.innerHTML = Object.keys(sportData).map(s=>`
+    <button class="sport-pill-btn${s===activeSport?' active':''}" data-sport="${s}"
+      onclick="selectSport('${s}',this)">${sportMeta[s].emoji} ${s}</button>
+  `).join('');
+}
+
+function selectSport(sport, btn){
+  activeSport = sport;
+  document.querySelectorAll('.sport-pill-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSportTable();
+}
+
+function renderSportTable(){
+  const players = sportData[activeSport]||[];
+  document.getElementById('sportLbBody').innerHTML = players.map((p,i)=>{
+    const pct = Math.round((p.wins/p.matches)*100);
+    return `<tr>
+      <td>${rankBadge(i)}</td>
+      <td><strong>${p.name}</strong></td>
+      <td><small style="color:var(--muted)">${p.district}</small></td>
+      <td>${p.matches}</td><td>${p.wins}</td>
+      <td><span style="color:${sportMeta[activeSport].color};font-weight:700">${pct}%</span></td>
+      <td><span class="pts-pill" style="background:${sportMeta[activeSport].color}22;color:${sportMeta[activeSport].color}">${p.pts}</span></td>
+      <td>${trendIcon[p.trend]}</td>
+    </tr>`;
+  }).join('');
+}
+
+function switchTab(tab, btn){
+  document.querySelectorAll('.lb-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('stateView').style.display='none';
+  document.getElementById('districtView').style.display='none';
+  document.getElementById('sportView').style.display='none';
+  document.getElementById('districtFilter').style.display='none';
+  document.getElementById('sportFilter').style.display='none';
+  if(tab==='state'){
+    document.getElementById('stateView').style.display='block';
+  } else if(tab==='district'){
+    document.getElementById('districtView').style.display='block';
+    document.getElementById('districtFilter').style.display='block';
+    renderDistrictLb();
+  } else {
+    document.getElementById('sportView').style.display='block';
+    renderSportSummary();
+    renderSportPillTabs();
+    renderSportTable();
+  }
+}
+
+function registerPlayer(e){
+  e.preventDefault();
+  alert('Registration Successful! Welcome to Play TN.');
+}
+
+renderStateLb();
+</script>
+</body>
+</html>

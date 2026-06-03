@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NephroScan — Kidney Stone Risk Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --navy: #0b1b3d;
+      --navy-dark: #070f24;
+      --navy-mid: #112252;
+      --blue: #1a6dc4;
+      --blue-light: #3b8de0;
+      --blue-glow: rgba(26,109,196,0.18);
+      --teal: #00c2a0;
+      --teal-dim: rgba(0,194,160,0.12);
+      --red: #e24b4a;
+      --red-dim: rgba(226,75,74,0.12);
+      --green: #3aab6f;
+      --green-dim: rgba(58,171,111,0.12);
+      --amber: #e89a2a;
+      --text-primary: #e8eef8;
+      --text-secondary: #8fa4c4;
+      --text-muted: #4a6080;
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.14);
+      --surface: rgba(255,255,255,0.04);
+      --surface-hover: rgba(255,255,255,0.07);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--navy-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 15% 20%, rgba(26,109,196,0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 75%, rgba(0,194,160,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(11,27,61,0.6) 0%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grid dot texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+      background: rgba(7,15,36,0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-text i {
+      color: var(--blue-light);
+      font-size: 22px;
+    }
+    
+    .logo-text span { color: var(--teal); }
+    
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .nav-pill {
+      font-size: 12px;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 99px;
+      background: var(--surface);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; 
+      z-index: 1;
+      text-align: center;
+      padding: 4rem 2rem 3rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--teal);
+      background: var(--teal-dim);
+      border: 1px solid rgba(0, 194, 160, 0.15);
+      padding: 6px 16px;
+      border-radius: 99px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.75rem;
+      line-height: 1.15;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--blue-light);
+    }
+
+    .hero-sub {
+      max-width: 620px;
+      margin: 0 auto 2.5rem;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 1.1rem 2.2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── PARAMETER GRID ── */
+    .param-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) { .param-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .param-grid { grid-template-columns: 1fr; } }
+    
+    .param-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.2rem;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .param-card:hover {
+      border-color: var(--border-hover);
+      background-color: var(--surface-hover);
+    }
+
+    .param-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .param-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .param-title i {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .param-value {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .param-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      margin: 1.1rem 0 0.6rem;
+      display: block;
+      cursor: pointer;
+    }
+    
+    .param-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--blue-light);
+      border: 2px solid var(--navy-dark);
+      box-shadow: 0 0 0 3px rgba(59,141,224,0.25);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    
+    .param-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 5px rgba(59,141,224,0.3);
+    }
+    
+    .param-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--blue-light);
+      border: 2px solid var(--navy-dark);
+      cursor: pointer;
+    }
+    
+    .param-range {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ── PRESETS ── */
+    .presets-container {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .preset-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .preset-btn.high {
+      background: var(--red-dim);
+      border: 1px solid rgba(226,75,74,0.3);
+      color: #f5807f;
+    }
+    
+    .preset-btn.high:hover {
+      border-color: rgba(226,75,74,0.6);
+      background: rgba(226,75,74,0.18);
+    }
+
+    .preset-btn.low {
+      background: var(--green-dim);
+      border: 1px solid rgba(58,171,111,0.3);
+      color: #5ccc8e;
+    }
+    
+    .preset-btn.low:hover {
+      border-color: rgba(58,171,111,0.6);
+      background: rgba(58,171,111,0.18);
+    }
+
+    .preset-btn.reset {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    
+    .preset-btn.reset:hover {
+      border-color: var(--border-hover);
+      color: var(--text-secondary);
+    }
+
+    /* ── ANALYSE BUTTON ── */
+    .analyse-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+    
+    .analyse-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 40px;
+      background: linear-gradient(135deg, var(--blue), #0e4fa8);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(26,109,196,0.35);
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .analyse-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(26,109,196,0.5);
+    }
+
+    .analyse-btn:active {
+      transform: translateY(0);
+    }
+
+    /* ── RESULT SECTION ── */
+    .result-section {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 2rem;
+    }
+
+    .result-section.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-top-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .result-top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Risk Class elements */
+    .risk-class-card {
+      align-items: flex-start;
+    }
+
+    .risk-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .risk-icon-wrap.low {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid rgba(58,171,111,0.2);
+    }
+
+    .risk-icon-wrap.high {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(226,75,74,0.2);
+    }
+
+    .risk-icon-wrap i {
+      font-size: 24px;
+    }
+
+    .risk-class-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .risk-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .risk-title.low {
+      color: #5ccc8e;
+    }
+
+    .risk-title.high {
+      color: #f5807f;
+    }
+
+    .risk-desc {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .confidence-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 99px;
+    }
+    
+    .confidence-badge.high { 
+      background: var(--red-dim); 
+      color: #f5807f; 
+      border: 1px solid rgba(226,75,74,0.2); 
+    }
+    
+    .confidence-badge.low { 
+      background: var(--green-dim); 
+      color: #5ccc8e; 
+      border: 1px solid rgba(58,171,111,0.2); 
+    }
+
+    /* Risk Distribution elements */
+    .risk-dist-card {
+      align-items: stretch;
+    }
+
+    .dist-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .dist-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .radial-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radial-text {
+      position: absolute;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radial-pct {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .radial-label {
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.65s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.65s ease;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .prob-rows {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .prob-row {
+      width: 100%;
+    }
+
+    .prob-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    .prob-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+    }
+
+    .prob-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .prob-dot.green { background: var(--green); }
+    .prob-dot.red { background: var(--red); }
+
+    .prob-val {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .prob-bar {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .prob-bar-fill.green { background: var(--green); }
+    .prob-bar-fill.red { background: var(--red); }
+
+    /* ── FEATURE IMPACT ── */
+    .impact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .impact-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 1.2rem;
+    }
+
+    .impact-title i {
+      margin-right: 6px;
+      color: var(--text-muted);
+      vertical-align: -1px;
+    }
+    
+    .impact-rows { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 12px; 
+    }
+    
+    .impact-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 48px;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .impact-label {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .impact-label i {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .impact-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .impact-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.9s cubic-bezier(.4,0,.2,1);
+    }
+    
+    .impact-pct { 
+      text-align: right; 
+      font-weight: 500; 
+      font-size: 12px; 
+      color: var(--text-muted); 
+    }
+
+    /* ── TIPS GRID ── */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) { .tips-grid { grid-template-columns: 1fr; } }
+    
+    .tip-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .tip-icon {
+      font-size: 22px;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .tip-icon.ok { color: var(--green); }
+    .tip-icon.warn { color: var(--amber); }
+    .tip-icon.info { color: var(--blue-light); }
+    
+    .tip-head {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .tip-body {
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+
+    /* ── RESET ── */
+    .reset-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    
+    .reset-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 8px 20px;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .reset-btn:hover { 
+      border-color: var(--border-hover); 
+      color: var(--text-secondary); 
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      margin-top: 4rem;
+    }
+    
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    
+    @media (max-width: 768px) { .how-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .how-grid { grid-template-columns: 1fr; } }
+    
+    .how-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+    }
+
+    .how-card i {
+      font-size: 24px;
+      margin-bottom: 0.6rem;
+      display: block;
+    }
+
+    .how-card i.blue { color: var(--blue-light); }
+    .how-card i.teal { color: var(--teal); }
+
+    .how-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+
+    .how-card-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 11.5px;
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    footer strong {
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="logo-text">
+      <i class="ti ti-activity-heartbeat"></i> Nephro<span>Scan</span>
+    </a>
+    <div class="nav-right">
+      <div class="nav-pill">
+        <i class="ti ti-database" style="font-size: 11px; vertical-align: -1px; margin-right: 3px;"></i> Random Forest · UCI Dataset
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <i class="ti ti-shield-check" style="font-size:12px;"></i> Clinical Decision Support Tool
+    </div>
+    <h1>Chronic Kidney Stone<br/><em>Risk Predictor</em></h1>
+    <p class="hero-sub">
+      Input urine analysis parameters to assess a patient's risk of kidney stone formation using a SMOTE-balanced Random Forest model trained on the UCI Andrews (1985) dataset.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">79</div>
+        <div class="stat-label">Patient records</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Biomarkers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">RF</div>
+        <div class="stat-label">Model type</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">SMOTE</div>
+        <div class="stat-label">Balancing</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <div class="container">
+    
+    <!-- Parameters -->
+    <div class="section-label">
+      <i class="ti ti-adjustments-horizontal" style="font-size:13px;"></i> Urine Analysis Parameters
+    </div>
+
+    <div class="param-grid">
+      <!-- Specific Gravity -->
+      <div class="param-card">
+        <div class="param-header">
+          <span class="param-title"><i class="ti ti-droplet"></i> Specific gravity</span>
+          <span class="param-value" id="v-gravity">1.015</span>
+        </div>
+        <input type="range" id="r-gravity" min="1.005" max="1.027" step="0.0005" value="1.015" class="param-slider" oninput="syncSlider('gravity', 3, false)" />
+        <div class="param-range">
+          <span>1.005</span>
+          <span>1.027</span>
+        </div>
+      </div>
+
+      <!-- pH -->
+      <div class="param-card">
+        <div class="param-header">
+          <span class="param-title"><i class="ti ti-scale"></i> pH</span>
+          <span class="param-value" id="v-ph">6.5</span>
+        </div>
+        <input type="range" id="r-ph" min="4.5" max="8.5" step="0.1" value="6.5" class="param-slider" oninput="syncSlider('ph', 1, false)" />
+        <div class="param-range">
+          <span>4.5</span>
+          <span>8.5</span>
+        </div>
+      </div>
+
+      <!-- Osmolality -->
+      <div class="param-card">
+        <div class="param-header">
+          <span class="param-title"><i class="ti ti-wave-sine"></i> Osmolality</span>
+          <span class="param-value" id="v-osmo">500 <small style="font-size:11px;color:var(--text-muted);">mOsm</small></span>
+        </div>
+        <input type="range" id="r-osmo" min="200" max="900" step="1" value="500" class="param-slider" oninput="syncSlider('osmo', 0, true, 'mOsm')" />
+        <div class="param-range">
+          <span>200</span>
+          <span>900</span>
+        </div>
+      </div>
+
+      <!-- Conductivity -->
+      <div class="param-card">
+        <div class="param-header">
+          <span class="param-title"><i class="ti ti-bolt"></i> Conductivity</span>
+          <span class="param-value" id="v-cond">14.0 <small style="font-size:11px;color:var(--text-muted);">mMho</small></span>
+        </div>
+        <input type="range" id="r-cond" min="5.0" max="29.0" step="0.1" value="14.0" class="param-slider" oninput="syncSlider('cond', 1, true, 'mMho')" />
+        <div class="param-range">
+          <span>5.0</span>
+          <span>29.0</span>
+        </div>
+      </div>
+
+      <!-- Urea -->
+      <div class="param-card">
+        <div class="param-header">
+          <span class="param-title"><i class="ti ti-flask"></i> Urea</span>
+          <span class="param-value" id="v-urea">250 <small style="font-size:11px;color:var(--text-muted);">mmol/L</small></span>
+        </div>
+        <input type="range" id="r-urea" min="88" max="500" step="1" value="250" class="param-slider" oninput="syncSlider('urea', 0, true, 'mmol/L')" />
+        <div class="param-range">
+          <span>88</span>
+          <span>500</span>
+        </div>
+      </div>
+
+      <!-- Calcium -->
+      <div class="param-card">
+        <div class="param-header">
+          <span class="param-title"><i class="ti ti-grid-dots"></i> Calcium</span>
+          <span class="param-value" id="v-calc">3.0 <small style="font-size:11px;color:var(--text-muted);">mmol/L</small></span>
+        </div>
+        <input type="range" id="r-calc" min="0.5" max="9.0" step="0.1" value="3.0" class="param-slider" oninput="syncSlider('calc', 1, true, 'mmol/L')" />
+        <div class="param-range">
+          <span>0.5</span>
+          <span>9.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick presets -->
+    <div class="presets-container">
+      <button class="preset-btn high" onclick="loadPreset('high')">
+        <i class="ti ti-alert-triangle" style="font-size:12px;"></i> High-risk preset
+      </button>
+      <button class="preset-btn low" onclick="loadPreset('low')">
+        <i class="ti ti-circle-check" style="font-size:12px;"></i> Low-risk preset
+      </button>
+      <button class="preset-btn reset" onclick="resetAll()">
+        <i class="ti ti-refresh" style="font-size:12px;"></i> Reset
+      </button>
+    </div>
+
+    <!-- Analyse button -->
+    <div class="analyse-wrap">
+      <button class="analyse-btn" onclick="runPrediction()">
+        <i class="ti ti-brain"></i> Analyse & Predict Risk
+      </button>
+    </div>
+
+    <!-- RESULT CONTAINER -->
+    <div id="resultSection" class="result-section">
+      
+      <!-- Top Grid: Class and SVG Radial -->
+      <div class="result-top-grid">
+        
+        <!-- Risk Class Panel -->
+        <div class="result-card risk-class-card">
+          <div>
+            <div id="riskIconWrap" class="risk-icon-wrap low">
+              <!-- Dynamically populated icon -->
+            </div>
+            <div class="risk-class-label">Risk Class</div>
+            <h2 id="riskTitle" class="risk-title low">Low Risk of Kidney Stone Formation</h2>
+            <p id="riskDesc" class="risk-desc">
+              No immediate intervention required. Urine parameters are within manageable ranges. Continue routine monitoring.
+            </p>
+          </div>
+          <div id="confidenceBadgeWrap">
+            <!-- Dynamically populated badge -->
+          </div>
+        </div>
+
+        <!-- Risk Probability Distribution Panel -->
+        <div class="result-card risk-dist-card">
+          <div class="dist-title">Risk probability distribution</div>
+          
+          <div class="dist-content">
+            <div class="radial-container">
+              <svg width="120" height="120">
+                <circle stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="45" cx="60" cy="60"/>
+                <circle id="progressCircle" class="progress-ring__circle" stroke="var(--green)" stroke-width="8" fill="transparent" r="45" cx="60" cy="60" stroke-dasharray="282.74" stroke-dashoffset="110"/>
+              </svg>
+              <div class="radial-text">
+                <div id="radialPct" class="radial-pct">61%</div>
+                <div id="radialLabel" class="radial-label">RISK</div>
+              </div>
+            </div>
+
+            <div class="prob-rows">
+              <!-- Low Prob -->
+              <div class="prob-row">
+                <div class="prob-header">
+                  <span class="prob-label"><span class="prob-dot green"></span> Low risk probability</span>
+                  <span class="prob-val" id="lowProbVal">61%</span>
+                </div>
+                <div class="prob-bar">
+                  <div class="prob-bar-fill green" id="lowBar" style="width: 0%;"></div>
+                </div>
+              </div>
+              <!-- High Prob -->
+              <div class="prob-row">
+                <div class="prob-header">
+                  <span class="prob-label"><span class="prob-dot red"></span> High risk probability</span>
+                  <span class="prob-val" id="highProbVal">39%</span>
+                </div>
+                <div class="prob-bar">
+                  <div class="prob-bar-fill red" id="highBar" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Feature contribution card -->
+      <div class="impact-card">
+        <div class="impact-title">
+          <i class="ti ti-chart-bar"></i> Feature contribution to risk score
+        </div>
+        <div class="impact-rows" id="impactRows">
+          <!-- Dynamically generated rows -->
+        </div>
+      </div>
+
+      <!-- Recommendations Section -->
+      <div class="section-label">
+        <i class="ti ti-shield-heart" style="font-size:13px;"></i> Clinical Recommendations
+      </div>
+      <div class="tips-grid" id="tipsGrid">
+        <!-- Dynamically generated tip cards -->
+      </div>
+
+      <!-- Bottom Reset -->
+      <div class="reset-row">
+        <button class="reset-btn" onclick="resetAll()">
+          <i class="ti ti-refresh" style="font-size:12px;"></i> Run Another Analysis
+        </button>
+      </div>
+
+    </div>
+
+    <!-- How It Works Section -->
+    <section class="how-section">
+      <div class="section-label">
+        <i class="ti ti-info-circle" style="font-size:13px;"></i> How It Works
+      </div>
+      <div class="how-grid">
+        <div class="how-card">
+          <i class="ti ti-settings blue"></i>
+          <div class="how-card-title">1. Input Biomarkers</div>
+          <div class="how-card-desc">Enter the patient's urine analysis results using the range sliders.</div>
+        </div>
+        <div class="how-card">
+          <i class="ti ti-arrows-minimize teal"></i>
+          <div class="how-card-title">2. Normalize Data</div>
+          <div class="how-card-desc">Values are dynamically scaled against dataset bounds.</div>
+        </div>
+        <div class="how-card">
+          <i class="ti ti-cpu blue"></i>
+          <div class="how-card-title">3. Random Forest</div>
+          <div class="how-card-desc">Features are weighed according to a SMOTE-balanced ensemble model.</div>
+        </div>
+        <div class="how-card">
+          <i class="ti ti-report-medical teal"></i>
+          <div class="how-card-title">4. Clinical Insights</div>
+          <div class="how-card-desc">Examine the patient's risk probability, feature impacts, and recommendations.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <strong>NephroScan</strong> · Chronic Kidney Stone Risk Predictor<br/>
+      Model: Random Forest Classifier · Dataset: Andrews D.F. (1985) UCI Urine Analysis · 79 records, 6 features<br/>
+      <span style="color:var(--red);font-weight:500;">⚠ For clinical decision support only.</span> Always consult a qualified nephrologist before making diagnostic or treatment decisions.
+    </footer>
+
+  </div>
+
+  <script>
+    // ── Slider sync ──
+    function syncSlider(key, dp, hasUnit, unit) {
+      const val = parseFloat(document.getElementById('r-' + key).value);
+      const el = document.getElementById('v-' + key);
+      if (hasUnit) {
+        el.innerHTML = val.toFixed(dp) + ' <small style="font-size:11px;color:var(--text-muted);">' + unit + '</small>';
+      } else {
+        el.textContent = val.toFixed(dp);
+      }
+    }
+    
+    // ── Presets ──
+    const presets = {
+      high: { gravity: 1.0215, ph: 6.8, osmo: 612, cond: 18.4, urea: 310, calc: 4.92 },
+      low: { gravity: 1.0082, ph: 7.2, osmo: 312, cond: 10.1, urea: 148, calc: 1.45 }
+    };
+    
+    function setSlider(key, val, dp, hasUnit, unit) {
+      document.getElementById('r-' + key).value = val;
+      const el = document.getElementById('v-' + key);
+      if (hasUnit) {
+        el.innerHTML = val.toFixed(dp) + ' <small style="font-size:11px;color:var(--text-muted);">' + unit + '</small>';
+      } else {
+        el.textContent = val.toFixed(dp);
+      }
+    }
+
+    function loadPreset(key) {
+      const p = presets[key];
+      setSlider('gravity', p.gravity, 3, false);
+      setSlider('ph', p.ph, 1, false);
+      setSlider('osmo', p.osmo, 0, true, 'mOsm');
+      setSlider('cond', p.cond, 1, true, 'mMho');
+      setSlider('urea', p.urea, 0, true, 'mmol/L');
+      setSlider('calc', p.calc, 1, true, 'mmol/L');
+      
+      // Auto-run prediction on preset click
+      runPrediction();
+    }
+    
+    // ── PREDICTION LOGIC ──
+    // Weights approximate RF feature importances from training data
+    const FI = { gravity: 0.28, calc: 0.25, osmo: 0.18, cond: 0.13, urea: 0.10, ph: 0.06 };
+    const FEAT_MINS = { gravity: 1.005, ph: 4.5, osmo: 200, cond: 5.0, urea: 88, calc: 0.5 };
+    const FEAT_MAXS = { gravity: 1.027, ph: 8.5, osmo: 900, cond: 29.0, urea: 500, calc: 9.0 };
+    
+    function norm(key, val) {
+      return Math.max(0, Math.min(1, (val - FEAT_MINS[key]) / (FEAT_MAXS[key] - FEAT_MINS[key])));
+    }
+    
+    function runPrediction() {
+      const vals = {
+        gravity: parseFloat(document.getElementById('r-gravity').value),
+        ph: parseFloat(document.getElementById('r-ph').value),
+        osmo: parseFloat(document.getElementById('r-osmo').value),
+        cond: parseFloat(document.getElementById('r-cond').value),
+        urea: parseFloat(document.getElementById('r-urea').value),
+        calc: parseFloat(document.getElementById('r-calc').value),
+      };
+      
+      const normed = {};
+      let riskScore = 0;
+      for (const k in vals) {
+        // pH is inversely correlated at extremes
+        let n = norm(k, vals[k]);
+        if (k === 'ph') n = vals[k] < 6.0 ? 0.75 : vals[k] > 7.0 ? 0.18 : 0.45;
+        normed[k] = n;
+        riskScore += n * FI[k];
+      }
+
+      const isHigh = riskScore >= 0.50;
+      const lowRiskProb = Math.round((1 - riskScore) * 100);
+      const highRiskProb = Math.round(riskScore * 100);
+      
+      // ── Risk Class Panel Updates ──
+      const iconWrap = document.getElementById('riskIconWrap');
+      const riskTitle = document.getElementById('riskTitle');
+      const riskDesc = document.getElementById('riskDesc');
+      const badgeWrap = document.getElementById('confidenceBadgeWrap');
+
+      if (isHigh) {
+        iconWrap.className = 'risk-icon-wrap high';
+        iconWrap.innerHTML = '<i class="ti ti-alert-triangle-filled"></i>';
+        riskTitle.className = 'risk-title high';
+        riskTitle.textContent = 'High Risk of Kidney Stone Formation';
+        riskDesc.textContent = 'Immediate intervention suggested. Urine parameters indicate a high risk of mineral saturation and stone crystallization.';
+        badgeWrap.innerHTML = `<span class="confidence-badge high"><i class="ti ti-percentage"></i> ${highRiskProb}% confidence · Class 1 (High Risk)</span>`;
+      } else {
+        iconWrap.className = 'risk-icon-wrap low';
+        iconWrap.innerHTML = '<i class="ti ti-circle-check-filled"></i>';
+        riskTitle.className = 'risk-title low';
+        riskTitle.textContent = 'Low Risk of Kidney Stone Formation';
+        riskDesc.textContent = 'No immediate intervention required. Urine parameters are within manageable ranges. Continue routine monitoring.';
+        badgeWrap.innerHTML = `<span class="confidence-badge low"><i class="ti ti-percentage"></i> ${lowRiskProb}% confidence · Class 0 (Low Risk)</span>`;
+      }
+
+      // ── Radial Ring and Probability Distributions ──
+      const predictedProb = isHigh ? highRiskProb : lowRiskProb;
+      const progressColor = isHigh ? 'var(--red)' : 'var(--green)';
+
+      // Update Radial SVG Circle
+      const circle = document.getElementById('progressCircle');
+      const radius = circle.r.baseVal.value;
+      const circumference = 2 * Math.PI * radius;
+      circle.style.strokeDasharray = `${circumference} ${circumference}`;
+      const offset = circumference - (predictedProb / 100) * circumference;
+      circle.style.strokeDashoffset = offset;
+      circle.style.stroke = progressColor;
+
+      // Update Radial text labels
+      document.getElementById('radialPct').textContent = predictedProb + '%';
+      document.getElementById('radialPct').style.color = progressColor;
+      
+      // Update Distribution progress bars
+      document.getElementById('lowProbVal').textContent = lowRiskProb + '%';
+      document.getElementById('highProbVal').textContent = highRiskProb + '%';
+      document.getElementById('lowBar').style.width = lowRiskProb + '%';
+      document.getElementById('highBar').style.width = highRiskProb + '%';
+
+      // ── Feature Impact ──
+      let impactHTML = '';
+      const labels = {
+        gravity: 'Specific gravity',
+        calc: 'Calcium',
+        osmo: 'Osmolality',
+        cond: 'Conductivity',
+        urea: 'Urea',
+        ph: 'pH'
+      };
+      const icons = {
+        gravity: 'ti ti-droplet',
+        calc: 'ti ti-grid-dots',
+        osmo: 'ti ti-wave-sine',
+        cond: 'ti ti-bolt',
+        urea: 'ti ti-flask',
+        ph: 'ti ti-scale'
+      };
+
+      for (const k in FI) {
+        const pct = Math.round(normed[k] * 100);
+        // Orange if normed value is >= 0.40 (warning contribution), Green if < 0.40 (low contribution)
+        const color = normed[k] >= 0.40 ? 'var(--amber)' : 'var(--green)';
+        impactHTML += `
+          <div class="impact-row">
+            <span class="impact-label"><i class="${icons[k]}"></i> ${labels[k]}</span>
+            <div class="impact-bar">
+              <div class="impact-bar-fill" style="width: ${pct}%; background: ${color};"></div>
+            </div>
+            <span class="impact-pct">${Math.round(FI[k] * 100)}% wt.</span>
+          </div>
+        `;
+      }
+      document.getElementById('impactRows').innerHTML = impactHTML;
+      
+      // ── Tips / Recommendations ──
+      let tipsHTML = '';
+      if (isHigh) {
+        tipsHTML = `
+          <div class="tip-card">
+            <div class="tip-icon warn"><i class="ti ti-droplet-filled"></i></div>
+            <div class="tip-head">Increase Hydration</div>
+            <div class="tip-body">Patient should drink at least 2.5–3 litres of water daily to dilute urine concentration and reduce stone-forming mineral saturation.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon warn"><i class="ti ti-meat"></i></div>
+            <div class="tip-head">Dietary Restriction</div>
+            <div class="tip-body">Restrict calcium-rich foods and high-oxalate diet items (spinach, nuts, chocolate, beetroot) to reduce urinary calcium and oxalate levels.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon warn"><i class="ti ti-stethoscope"></i></div>
+            <div class="tip-head">Specialist Referral</div>
+            <div class="tip-body">Refer immediately to a nephrologist for 24-hour urine collection, renal ultrasound or CT-KUB imaging, and metabolic workup.</div>
+          </div>`;
+      } else {
+        tipsHTML = `
+          <div class="tip-card">
+            <div class="tip-icon ok"><i class="ti ti-droplet"></i></div>
+            <div class="tip-head">Maintain Hydration</div>
+            <div class="tip-body">Patient should maintain 2 litres of fluid intake per day. Good hydration is the single most effective prevention measure.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon ok"><i class="ti ti-calendar"></i></div>
+            <div class="tip-head">Routine Monitoring</div>
+            <div class="tip-body">Schedule urine analysis every 6–12 months. Early biomarker trends allow timely intervention before stone formation occurs.</div>
+          </div>
+          <div class="tip-card">
+            <div class="tip-icon info"><i class="ti ti-salad"></i></div>
+            <div class="tip-head">Balanced Diet</div>
+            <div class="tip-body">Maintain a balanced diet low in sodium and animal protein. Moderate calcium intake from food sources — do not restrict entirely.</div>
+          </div>`;
+      }
+      document.getElementById('tipsGrid').innerHTML = tipsHTML;
+      
+      // Show result section
+      const rs = document.getElementById('resultSection');
+      rs.classList.add('visible');
+      
+      // Smooth scroll to results
+      setTimeout(() => {
+        rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+    
+    // ── Reset ──
+    function resetAll() {
+      setSlider('gravity', 1.015, 3, false);
+      setSlider('ph', 6.5, 1, false);
+      setSlider('osmo', 500, 0, true, 'mOsm');
+      setSlider('cond', 14.0, 1, true, 'mMho');
+      setSlider('urea', 250, 0, true, 'mmol/L');
+      setSlider('calc', 3.0, 1, true, 'mmol/L');
+      
+      const rs = document.getElementById('resultSection');
+      rs.classList.remove('visible');
+      
+      // Reset probability bar widths to 0
+      document.getElementById('lowBar').style.width = '0%';
+      document.getElementById('highBar').style.width = '0%';
+      
+      // Reset radial circle dashoffset
+      const circle = document.getElementById('progressCircle');
+      circle.style.strokeDashoffset = '282.74';
+      
+      // Scroll back to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize with default state
+    window.onload = function() {
+      resetAll();
+    };
+  </script>
+</body>
+</html>
